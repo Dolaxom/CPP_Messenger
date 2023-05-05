@@ -2,8 +2,8 @@
 
 MessengerView::MessengerView(QWidget *parent)
         : QWidget(parent) {
-    NicknameLabel = new QLabel("Nikolai");
-    NicknameLabel->setAlignment(Qt::AlignCenter);
+    nicknameLabel = new QLabel("Nikolai");
+    nicknameLabel->setAlignment(Qt::AlignCenter);
 
     chatBox = new QTextEdit();
     chatBox->setReadOnly(true);
@@ -21,7 +21,7 @@ MessengerView::MessengerView(QWidget *parent)
     messageLayout->addWidget(sendButton);
 
     mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(NicknameLabel);
+    mainLayout->addWidget(nicknameLabel);
     mainLayout->addLayout(chatLayout);
     mainLayout->addLayout(messageLayout);
 

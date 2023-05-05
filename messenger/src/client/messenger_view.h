@@ -17,7 +17,7 @@ public:
     ~MessengerView() = default;
 
 private:
-    QLabel* NicknameLabel;
+    QLabel* nicknameLabel;
     QTextEdit* chatBox;
     QTextEdit* messageBox;
     QPushButton* sendButton;
