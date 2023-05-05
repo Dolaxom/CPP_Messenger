@@ -13,8 +13,8 @@ class MessengerBase : public QWidget
 Q_OBJECT
 
 public:
-    MessengerBase(QWidget *parent = nullptr);
-    ~MessengerBase();
+    explicit MessengerBase(QWidget *parent = nullptr);
+    ~MessengerBase() = default;
 
 private:
     QLabel* NicknameLabel;

@@ -27,7 +27,3 @@ MessengerBase::MessengerBase(QWidget *parent)
 
     setLayout(mainLayout);
 }
-
-MessengerBase::~MessengerBase()
-{
-}
