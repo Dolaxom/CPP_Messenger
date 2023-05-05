@@ -8,13 +8,13 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
-class MessengerBase : public QWidget
+class MessengerView : public QWidget
 {
 Q_OBJECT
 
 public:
-    explicit MessengerBase(QWidget *parent = nullptr);
-    ~MessengerBase() = default;
+    explicit MessengerView(QWidget *parent = nullptr);
+    ~MessengerView() = default;
 
 private:
     QLabel* NicknameLabel;

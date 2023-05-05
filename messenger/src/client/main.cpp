@@ -1,11 +1,11 @@
-#include "messengerbase.h"
+#include "messenger_view.h"
 
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
-    MessengerBase window;
+    MessengerView window;
     window.setWindowTitle("Messenger");
     window.resize(500, 600);
     window.show();

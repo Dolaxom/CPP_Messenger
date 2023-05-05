@@ -18,8 +18,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        messengerbase.cpp
-        messengerbase.h
+        messenger_view.cpp
+        messenger_view.h
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

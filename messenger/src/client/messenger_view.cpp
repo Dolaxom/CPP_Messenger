@@ -1,6 +1,6 @@
-#include "messengerbase.h"
+#include "messenger_view.h"
 
-MessengerBase::MessengerBase(QWidget *parent)
+MessengerView::MessengerView(QWidget *parent)
         : QWidget(parent) {
     NicknameLabel = new QLabel("Nikolai");
     NicknameLabel->setAlignment(Qt::AlignCenter);
