@@ -13,8 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PREFIX_PATH "~/Qt/6.4.1/gcc_64")
 set(CMAKE_PREFIX_PATH "/Users/thedolaxom/Qt/6.4.1/macos/lib/cmake")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -38,7 +38,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(messengerServer PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(messengerServer PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 set_target_properties(messengerServer PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -57,4 +57,4 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 add_executable(messengerServerTarget ${PROJECT_SOURCES})
-target_link_libraries(messengerServerTarget PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(messengerServerTarget PRIVATE Qt${QT_VERSION_MAJOR}::Core)
