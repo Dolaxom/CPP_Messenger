@@ -4,8 +4,10 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MessengerBase w;
-    w.show();
-    return a.exec();
+    QApplication application(argc, argv);
+    MessengerBase window;
+    window.setWindowTitle("Messenger");
+    window.resize(500, 600);
+    window.show();
+    return application.exec();
 }

@@ -1,7 +1,9 @@
 # Changelog
 
-05.05.2023 3 P.M
+05.05.2023
 
 ### Added
 - Based Qt project
 - Based folders
+---
+- Added main user-form for message sending
