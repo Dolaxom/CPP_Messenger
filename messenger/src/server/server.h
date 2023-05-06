@@ -1,22 +1,21 @@
 #ifndef MESSENGER_SERVER_H
 #define MESSENGER_SERVER_H
 
+#include <QMap>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <QVector>
 
 class Server : public QTcpServer {
   Q_OBJECT
  public:
   Server();
 
-  QTcpSocket* socket_;  // Новый сокет для каждого нового подключения
-
  private:
-  QVector<QTcpSocket*> sockets_;
+  QMap<qintptr, QTcpSocket*> sockets_;
   QByteArray byteData_;
-  void SendToClient(const QString str);
+  void SendToClient(const QString& str);
   quint16 byteBlockSize_;
+  uint tempSock;
 
  public slots:
   // Обработчик новых подключений
@@ -24,6 +23,8 @@ class Server : public QTcpServer {
 
   // Обработчик полученных от клиента сообщений
   void slotReadyRead();
+
+  void clientDisconnected();
 };
 
 #endif  // MESSENGER_SERVER_H

@@ -10,57 +10,72 @@ Server::Server() {
   byteBlockSize_ = 0;
 }
 
-void Server::incomingConnection(
-    qintptr socketDescriptor) {  // Обработчик новых подключений
-  socket_ = new QTcpSocket;
-  socket_->setSocketDescriptor(socketDescriptor);
-  connect(socket_, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
-  connect(socket_, &QTcpSocket::disconnected, socket_,
-          &QTcpSocket::deleteLater);
+// Обработчик новых подключений
+void Server::incomingConnection(qintptr socketDescriptor) {
+  auto* socket = new QTcpSocket;
+  socket->setSocketDescriptor(socketDescriptor);
+  connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
+  connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+  connect(socket, &QTcpSocket::disconnected, this, &Server::clientDisconnected);
 
-  sockets_.push_back(socket_);
-  qDebug() << "client connected: " << socketDescriptor;
+  sockets_.insert(socket->socketDescriptor(), socket);
+  qDebug() << "client connected: " << socket->socketDescriptor();
 }
 
-void Server::slotReadyRead() {  // Обработчик полученных от клиента сообщений
-  socket_ = (QTcpSocket*)sender();
-  QDataStream in(socket_);
+// Обработчик полученных от клиента сообщений
+void Server::slotReadyRead() {
+  auto* socket = qobject_cast<QTcpSocket*>(sender());
+  if (!socket) {
+    qDebug("Wrong socket");
+    return;
+  }
+  QDataStream in(socket);
   in.setVersion(QDataStream::Qt_6_4);
   if (in.status() == QDataStream::Ok) {
-    qDebug() << "read ok";
     while (true) {
       if (!byteBlockSize_) {
-        if (socket_->bytesAvailable() < 2) {
+        if (socket->bytesAvailable() < 2) {
           break;
         }
         in >> byteBlockSize_;
       }
-      if (socket_->bytesAvailable() < byteBlockSize_) {
+
+      if (socket->bytesAvailable() < byteBlockSize_) {
         break;
       }
 
       QString str;
-      in >> str;
+
+      in >> tempSock >> str;
       byteBlockSize_ = 0;
       SendToClient(str);
+      qDebug() << "Read " << str << " from " << socket->socketDescriptor();
       break;
     }
   } else {
-    qDebug() << "byteData_ stream error";
+    qDebug() << "Message stream error";
   }
 }
 
-void Server::SendToClient(const QString str) {
+void Server::SendToClient(const QString& str) {
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
-  out << quint16(0) << str;
+
+  out << quint16(0) << tempSock << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
-  // socket_->write(byteData_);
-  // Отправка всем пользователям
-  for (int i = 0; i < sockets_.size(); i++) {
-    sockets_[i]->write(byteData_);
+
+  auto sock = sockets_.find(tempSock);
+  sock.value()->write(byteData_);
+  qDebug() << sock.value()->socketDescriptor();
+}
+
+void Server::clientDisconnected() {
+  auto* socket = qobject_cast<QTcpSocket*>(sender());
+  if (socket) {
+    qDebug() << "client disconnected: " << socket->socketDescriptor();
+    sockets_.remove(socket->socketDescriptor());
   }
 }

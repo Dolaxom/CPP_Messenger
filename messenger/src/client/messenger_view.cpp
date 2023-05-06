@@ -1,6 +1,6 @@
 #include "messenger_view.h"
 
-MessengerView::MessengerView(QWidget *parent) : QWidget(parent) {
+MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
   nicknameLabel = new QLabel("Nikolai");
   nicknameLabel->setAlignment(Qt::AlignCenter);
 
@@ -14,11 +14,15 @@ MessengerView::MessengerView(QWidget *parent) : QWidget(parent) {
   connect(sendButton, &QPushButton::clicked, this,
           &MessengerView::onSendButtonClicked);
 
+  chooseSocket = new QTextEdit();
+  chooseSocket->setFixedHeight(30);
+
   chatLayout = new QVBoxLayout();
   chatLayout->addWidget(chatBox);
 
   messageLayout = new QHBoxLayout();
   messageLayout->addWidget(messageBox);
+  messageLayout->addWidget(chooseSocket);
   messageLayout->addWidget(sendButton);
 
   mainLayout = new QVBoxLayout();
@@ -28,34 +32,37 @@ MessengerView::MessengerView(QWidget *parent) : QWidget(parent) {
 
   setLayout(mainLayout);
 
-  socket_ = new QTcpSocket(this);
+  serverSocket_ = new QTcpSocket(this);
 
-  connect(socket_, &QTcpSocket::readyRead, this, &MessengerView::slotReadyRead);
-  connect(socket_, &QTcpSocket::disconnected, socket_,
+  connect(serverSocket_, &QTcpSocket::readyRead, this,
+          &MessengerView::slotReadyRead);
+  connect(serverSocket_, &QTcpSocket::disconnected, serverSocket_,
           &QTcpSocket::deleteLater);
 
-  socket_->connectToHost("127.0.0.1", 2323);
+  serverSocket_->connectToHost("127.0.0.1", 2323);
 
   byteBlockSize_ = 0;
 }
 
 void MessengerView::slotReadyRead() {  // Приём данных
-  QDataStream in(socket_);
+  QDataStream in(serverSocket_);
   in.setVersion(QDataStream::Qt_6_4);
   if (in.status() == QDataStream::Ok) {
     while (true) {
       if (!byteBlockSize_) {
-        if (socket_->bytesAvailable() < 2) {
+        if (serverSocket_->bytesAvailable() < 2) {
           break;
         }
         in >> byteBlockSize_;
       }
-      if (socket_->bytesAvailable() < byteBlockSize_) {
+      if (serverSocket_->bytesAvailable() < byteBlockSize_) {
         break;
       }
 
       QString str;
-      in >> str;
+      uint sock;
+      in >> sock >> str;
+      qDebug() << "str: " << str;
       byteBlockSize_ = 0;
       chatBox->append(str);
       break;
@@ -63,17 +70,19 @@ void MessengerView::slotReadyRead() {  // Приём данных
   } else {
     chatBox->append("read error");
   }
+
+  qDebug() << serverSocket_->socketDescriptor() << "client socket send";
 }
 
-void MessengerView::sendToServer(const QString str) {
+void MessengerView::sendToServer(const QString& str) {
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
-  out << quint16(0) << str;
+  out << quint16(0) << chooseSocket->toPlainText().toUInt() << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
-  socket_->write(byteData_);
+  serverSocket_->write(byteData_);
 }
 
 void MessengerView::onSendButtonClicked() {

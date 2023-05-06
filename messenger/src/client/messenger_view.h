@@ -17,9 +17,9 @@ class MessengerView : public QWidget {
   ~MessengerView() = default;
 
  private:
-  QTcpSocket *socket_;
+  QTcpSocket *serverSocket_;
   QByteArray byteData_;
-  void sendToServer(const QString str);
+  void sendToServer(const QString &str);
   quint16 byteBlockSize_;
 
   QLabel *nicknameLabel;
@@ -29,6 +29,8 @@ class MessengerView : public QWidget {
   QVBoxLayout *chatLayout;
   QHBoxLayout *messageLayout;
   QVBoxLayout *mainLayout;
+
+  QTextEdit *chooseSocket;
 
  public slots:
   void slotReadyRead();
