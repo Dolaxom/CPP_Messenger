@@ -13,11 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PREFIX_PATH "~/Qt/6.4.1/gcc_64")
 set(CMAKE_PREFIX_PATH "/Users/thedolaxom/Qt/6.4.1/macos/lib/cmake")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network)
 
 set(PROJECT_SOURCES
-        main.cpp
+        main.cpp server.cpp server.h
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -38,7 +38,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(messengerServer PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(messengerServer PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt6::Network)
 
 set_target_properties(messengerServer PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -57,4 +57,4 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 add_executable(messengerServerTarget ${PROJECT_SOURCES})
-target_link_libraries(messengerServerTarget PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+target_link_libraries(messengerServerTarget PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt6::Network)

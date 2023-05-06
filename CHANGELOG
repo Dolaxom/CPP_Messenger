@@ -5,5 +5,13 @@
 ### Added
 - Based Qt project
 - Based folders
-- Main user-form for message sending
+- Main user-form (UI) for message sending
 - User and server files
+- CMake configurations
+
+06.05.2023
+### Added
+- Makefile
+- Linters
+- Based server implementation
+- Based client implementation
