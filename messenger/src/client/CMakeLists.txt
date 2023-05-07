@@ -13,15 +13,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_PREFIX_PATH "~/Qt/6.4.1/gcc_64")
 set(CMAKE_PREFIX_PATH "/Users/thedolaxom/Qt/6.4.1/macos/lib/cmake")
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Sql)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Sql)
 
 set(PROJECT_SOURCES
         main.cpp
         messenger_view.cpp
         messenger_view.h
-#        messenger_controller.cpp
-#        messenger_controller.h
+        authorization_view.cpp
+        authorization_view.h
+        client_view.cpp
+        client_view.h
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -42,7 +44,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(messengerClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Network)
+target_link_libraries(messengerClient PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Network Qt6::Sql)
 
 set_target_properties(messengerClient PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -61,4 +63,4 @@ if(QT_VERSION_MAJOR EQUAL 6)
 endif()
 
 add_executable(messengerClientTarget ${PROJECT_SOURCES})
-target_link_libraries(messengerClientTarget PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Network)
+target_link_libraries(messengerClientTarget PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt6::Network Qt6::Sql)
