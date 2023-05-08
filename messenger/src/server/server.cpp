@@ -1,5 +1,7 @@
 #include "server.h"
 
+#include "utilities.h"
+
 Server::Server() {
   if (this->listen(QHostAddress::Any, 2323)) {
     qDebug() << "Server run";
@@ -8,6 +10,7 @@ Server::Server() {
   }
 
   byteBlockSize_ = 0;
+  initPostgres();
 }
 
 // Обработчик новых подключений
@@ -79,3 +82,29 @@ void Server::clientDisconnected() {
     sockets_.remove(socket->socketDescriptor());
   }
 }
+void Server::initPostgres() {
+  db = QSqlDatabase::addDatabase("QPSQL");
+
+  PostgresConfiguration psqlConf;
+  Utilities::readPostgresConfig("postgres.conf", psqlConf);
+
+  db.setHostName(psqlConf.hostName);
+  db.setPort(psqlConf.hostPort);
+  db.setDatabaseName(psqlConf.databaseName);
+  db.setUserName(psqlConf.userName);
+  db.setPassword(psqlConf.userPassword);
+
+  if (!db.open()) {
+    qDebug() << "Error opening database:" << db.lastError().text();
+  }
+
+  QSqlQuery query("SELECT * FROM users");
+  while (query.next()) {
+    int id = query.value(0).toInt();
+    QString username = query.value(1).toString();
+    QString password = query.value(2).toString();
+    qDebug() << id << username << password;
+  }
+}
+
+Server::~Server() { db.close(); }

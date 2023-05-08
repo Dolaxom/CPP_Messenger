@@ -2,19 +2,25 @@
 #define MESSENGER_SERVER_H
 
 #include <QMap>
+#include <QSqlError>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QtSql/QSqlDatabase>
+#include <QtSql/QSqlQuery>
 
 class Server : public QTcpServer {
   Q_OBJECT
  public:
   Server();
+  ~Server();
 
  private:
+  void initPostgres();
   QMap<qintptr, QTcpSocket*> sockets_;
   QByteArray byteData_;
   void SendToClient(const QString& str);
   quint16 byteBlockSize_;
+  QSqlDatabase db;
   uint tempSock;
 
  public slots:
