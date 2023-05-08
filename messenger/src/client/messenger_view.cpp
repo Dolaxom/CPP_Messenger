@@ -60,15 +60,28 @@ void MessengerView::slotReadyRead() {  // Приём данных
       }
 
       QString str;
+      int type;
       uint sock;
-      in >> sock >> str;
-      qDebug() << "str: " << str;
-      byteBlockSize_ = 0;
-      chatBox->append(str);
+
+      in >> type >> sock >> str;
+
+      if (!type) {
+        qDebug() << "str: " << str;
+        byteBlockSize_ = 0;
+        chatBox->append(str);
+      } else {
+        qDebug() << "str: " << str;
+        if (str.toInt() > 0) {
+          emit successLoginSignal();
+        } else {
+          qDebug() << "Wrong password.";
+        }
+      }
+
       break;
     }
   } else {
-    chatBox->append("read error");
+    qDebug() << "Read error";
   }
 
   qDebug() << serverSocket_->socketDescriptor() << "client socket send";
@@ -79,7 +92,7 @@ void MessengerView::sendToServer(const QString& str) {
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
-  out << quint16(0) << chooseSocket->toPlainText().toUInt() << str;
+  out << quint16(0) << int(0) << chooseSocket->toPlainText().toUInt() << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
@@ -88,4 +101,31 @@ void MessengerView::sendToServer(const QString& str) {
 void MessengerView::onSendButtonClicked() {
   sendToServer(messageBox->toPlainText());
   messageBox->clear();
+}
+
+void MessengerView::loginSlot(const QString& nickname,
+                              const QString& password) {
+  byteData_.clear();
+
+  qDebug() << "MessengerView::loginSlot " << nickname;
+
+  QDataStream out(&byteData_, QIODevice::WriteOnly);
+  out.setVersion(QDataStream::Qt_6_4);
+  out << quint16(0) << int(1) << nickname << password;
+  out.device()->seek(0);
+  out << quint16(byteData_.size() - sizeof(quint16));
+  serverSocket_->write(byteData_);
+}
+void MessengerView::registrationSlot(const QString& nickname,
+                                     const QString& password) {
+  byteData_.clear();
+
+  qDebug() << "MessengerView::loginSlot " << nickname;
+
+  QDataStream out(&byteData_, QIODevice::WriteOnly);
+  out.setVersion(QDataStream::Qt_6_4);
+  out << quint16(0) << int(2) << nickname << password;
+  out.device()->seek(0);
+  out << quint16(byteData_.size() - sizeof(quint16));
+  serverSocket_->write(byteData_);
 }

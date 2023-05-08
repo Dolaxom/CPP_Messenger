@@ -1,6 +1,8 @@
 #ifndef MESSENGER_AUTHORIZATION_VIEW_H
 #define MESSENGER_AUTHORIZATION_VIEW_H
 
+#include <QFormLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -15,15 +17,18 @@ class AuthorizationView : public QWidget {
   ~AuthorizationView() = default;
 
  private:
-  QVBoxLayout* layout;
-  QLineEdit* m_usernameEdit;
-  QLineEdit* m_passwordEdit;
-  QPushButton* m_loginButton;
+  QLineEdit* usernameEdit_;
+  QLineEdit* passwordEdit_;
+  QPushButton* loginButton_;
+  QPushButton* registerButton_;
+  QFormLayout* layout_;
 
   void tryAuthorization();
+  void tryRegistration();
 
  signals:
-  void successfulLoginSignal();
+  void loginSignal(QString nickname, QString password);
+  void registationSignal(QString nickname, QString password);
 };
 
 #endif  // MESSENGER_AUTHORIZATION_VIEW_H

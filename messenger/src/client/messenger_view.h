@@ -33,8 +33,13 @@ class MessengerView : public QWidget {
 
  public slots:
   void slotReadyRead();
+  void loginSlot(const QString &nickname, const QString &password);
+  void registrationSlot(const QString &nickname, const QString &password);
 
  private slots:
   void onSendButtonClicked();
+
+ signals:
+  void successLoginSignal();
 };
 #endif  // MESSENGERBASE_H

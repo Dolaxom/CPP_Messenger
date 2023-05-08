@@ -24,7 +24,7 @@ class ClientView : public QMainWindow {
   MessengerView* messengerView;
   AuthorizationView* authorizationView;
 
- public slots:
-  void successfulLoginSlot();
+ private slots:
+  void successLoginSlot();
 };
 #endif  // MESSENGER_VIEW_H

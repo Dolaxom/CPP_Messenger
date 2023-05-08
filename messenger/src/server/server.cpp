@@ -47,12 +47,29 @@ void Server::slotReadyRead() {
         break;
       }
 
+      int type = 0;
       QString str;
+      in >> type;
+      if (type) {
+        QString login, password;
+        in >> login >> password;
+        qDebug() << socket->socketDescriptor() << " trying auth: " << login;
 
-      in >> tempSock >> str;
+        QSqlQuery query("SELECT COUNT(*) FROM users where username='" + login +
+                        "' AND password='" + password + "'");
+        if (query.next()) {
+          int count = query.value(0).toInt();
+          str = QString::number(count);
+          SendToClient(str, 1, socket);
+        }
+
+      } else {
+        in >> tempSock >> str;
+        SendToClient(str, 0);
+        qDebug() << "Read " << str << " from " << socket->socketDescriptor();
+      }
+
       byteBlockSize_ = 0;
-      SendToClient(str);
-      qDebug() << "Read " << str << " from " << socket->socketDescriptor();
       break;
     }
   } else {
@@ -60,19 +77,24 @@ void Server::slotReadyRead() {
   }
 }
 
-void Server::SendToClient(const QString& str) {
+void Server::SendToClient(const QString& str, const int type,
+                          QTcpSocket* senderSocket) {
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
 
-  out << quint16(0) << tempSock << str;
+  out << quint16(0) << type << tempSock << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
 
-  auto sock = sockets_.find(tempSock);
-  sock.value()->write(byteData_);
-  qDebug() << sock.value()->socketDescriptor();
+  if (!type) {
+    auto sock = sockets_.find(tempSock);
+    sock.value()->write(byteData_);
+    qDebug() << sock.value()->socketDescriptor();
+  } else {
+    senderSocket->write(byteData_);
+  }
 }
 
 void Server::clientDisconnected() {
@@ -97,14 +119,15 @@ void Server::initPostgres() {
   if (!db.open()) {
     qDebug() << "Error opening database:" << db.lastError().text();
   }
-
-  QSqlQuery query("SELECT * FROM users");
-  while (query.next()) {
-    int id = query.value(0).toInt();
-    QString username = query.value(1).toString();
-    QString password = query.value(2).toString();
-    qDebug() << id << username << password;
-  }
+  //
+  //  QSqlQuery query("SELECT * FROM users");
+  //  while (query.next()) {
+  //    int id = query.value(0).toInt();
+  //    QString username = query.value(1).toString();
+  //    QString password = query.value(2).toString();
+  //    qDebug() << id << username << password;
+  //  }
+  //
 }
 
 Server::~Server() { db.close(); }

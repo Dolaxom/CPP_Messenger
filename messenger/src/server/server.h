@@ -16,9 +16,10 @@ class Server : public QTcpServer {
 
  private:
   void initPostgres();
-  QMap<qintptr, QTcpSocket*> sockets_;
+  QMap<qintptr, QTcpSocket *> sockets_;
   QByteArray byteData_;
-  void SendToClient(const QString& str);
+  void SendToClient(const QString &str, int type,
+                    QTcpSocket *senderSocket = nullptr);
   quint16 byteBlockSize_;
   QSqlDatabase db;
   uint tempSock;

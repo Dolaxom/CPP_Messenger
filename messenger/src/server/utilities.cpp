@@ -1,14 +1,15 @@
 #include "utilities.h"
 
+#include <QDebug>
 #include <QtCore/QFile>
 #include <QtCore/QTextStream>
-#include <QDebug>
 
 void Utilities::readPostgresConfig(QString&& filename,
                                    PostgresConfiguration& config) {
   QFile file(filename);
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    qDebug() << "Can`t find " << filename << " in void Utilities::readPostgresConfig";
+    qDebug() << "Can`t find " << filename
+             << " in void Utilities::readPostgresConfig";
     return;
   }
 
