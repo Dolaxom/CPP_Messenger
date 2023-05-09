@@ -18,6 +18,8 @@ MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
   sendButton = new QPushButton("Send");
   connect(sendButton, &QPushButton::clicked, this,
           &MessengerView::onSendButtonClicked);
+  connect(findUserButton, &QPushButton::clicked, this,
+          &MessengerView::onFindUserButtonClicked);
 
   QLabel* targetUserLabel = new QLabel("Enter target username:");
   targetUser = new QTextEdit();
@@ -43,6 +45,7 @@ MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
   setLayout(mainLayout);
 
   serverSocket_ = new QTcpSocket(this);
+  serverSocket_->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 
   connect(serverSocket_, &QTcpSocket::readyRead, this,
           &MessengerView::slotReadyRead);
@@ -56,7 +59,8 @@ MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
 
 MessengerView::~MessengerView() { delete clientData_; }
 
-void MessengerView::slotReadyRead() {  // Приём данных
+// Приём данных
+void MessengerView::slotReadyRead() {
   QDataStream in(serverSocket_);
   in.setVersion(QDataStream::Qt_6_4);
   if (in.status() == QDataStream::Ok) {
@@ -79,7 +83,6 @@ void MessengerView::slotReadyRead() {  // Приём данных
       in >> type >> sock >> str;
 
       if (!type) {
-        qDebug() << "str: " << str;
         byteBlockSize_ = 0;
         chatBox->append(str);
       } else if (type == 1) {
@@ -97,6 +100,9 @@ void MessengerView::slotReadyRead() {  // Приём данных
         } else if (str == "BAD") {
           emit oppositeRegistrationSignal();
         }
+      } else if (type == 3) {
+        byteBlockSize_ = 0;
+        chatBox->append(str);
       }
 
       break;
@@ -113,7 +119,7 @@ void MessengerView::sendToServer(const QString& str) {
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
-  out << quint16(0) << int(0) << targetUser->toPlainText().toUInt() << str;
+  out << quint16(0) << int(0) << clientData_->username << targetUser->toPlainText() << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
@@ -122,6 +128,19 @@ void MessengerView::sendToServer(const QString& str) {
 void MessengerView::onSendButtonClicked() {
   sendToServer(messageBox->toPlainText());
   messageBox->clear();
+}
+
+void MessengerView::onFindUserButtonClicked() {
+  chatBox->clear();
+  byteData_.clear();
+
+  QDataStream out(&byteData_, QIODevice::WriteOnly);
+  out.setVersion(QDataStream::Qt_6_4);
+  out << quint16(0) << int(3) << clientData_->username
+      << targetUser->toPlainText();
+  out.device()->seek(0);
+  out << quint16(byteData_.size() - sizeof(quint16));
+  serverSocket_->write(byteData_);
 }
 
 void MessengerView::loginSlot(const QString& nickname,

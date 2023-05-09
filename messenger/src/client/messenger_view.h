@@ -46,6 +46,7 @@ class MessengerView : public QWidget {
 
  private slots:
   void onSendButtonClicked();
+  void onFindUserButtonClicked();  // find user and load messages history
 
  signals:
   void successLoginSignal();

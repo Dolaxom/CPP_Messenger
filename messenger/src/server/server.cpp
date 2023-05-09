@@ -62,7 +62,6 @@ void Server::slotReadyRead() {
           str = QString::number(count);
           SendToClient(str, 1, socket);
         }
-
       } else if (type == 2) {
         QString login, password;
         in >> login >> password;
@@ -83,10 +82,28 @@ void Server::slotReadyRead() {
         }
 
         SendToClient(str, 2, socket);
+      } else if (type == 3) {
+        QString senderName, receiverName;
+        in >> senderName >> receiverName;
+
+        qDebug() << socket->socketDescriptor()
+                 << " trying load message history.";
+        QSqlQuery query(
+            "SELECT sender_name, message FROM messages WHERE sender_name = '" +
+            senderName + "' AND receiver_name = '" + receiverName +
+            "' OR sender_name = '" + receiverName + "' AND receiver_name = '" +
+            senderName + "' ORDER BY sent_time ASC;");
+
+        while (query.next()) {
+          str += query.value(0).toString() + ": " + query.value(1).toString() +
+                 '\n';
+        }
+        SendToClient(str, 3, socket);
       } else if (!type) {
-        in >> tempSock >> str;
-        SendToClient(str, 0);
-        qDebug() << "Read " << str << " from " << socket->socketDescriptor();
+        QString senderName, receiverName, message;
+        in >> senderName >> receiverName >> message;
+
+        QSqlQuery query("INSERT INTO messages (sender_name, receiver_name, message) VALUES ('" + senderName + "', '" + receiverName + "', '" + message + "');");
       }
 
       byteBlockSize_ = 0;
@@ -116,6 +133,8 @@ void Server::SendToClient(const QString& str, const int type,
     senderSocket->write(byteData_);
   } else if (type == 2) {
     senderSocket->write(byteData_);
+  } else if (type == 3) {
+    senderSocket->write(byteData_);
   }
 }
 
@@ -126,6 +145,7 @@ void Server::clientDisconnected() {
     sockets_.remove(socket->socketDescriptor());
   }
 }
+
 void Server::initPostgres() {
   db = QSqlDatabase::addDatabase("QPSQL");
 
