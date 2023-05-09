@@ -50,7 +50,7 @@ void Server::slotReadyRead() {
       int type = 0;
       QString str;
       in >> type;
-      if (type) {
+      if (type == 1) {
         QString login, password;
         in >> login >> password;
         qDebug() << socket->socketDescriptor() << " trying auth: " << login;
@@ -63,7 +63,26 @@ void Server::slotReadyRead() {
           SendToClient(str, 1, socket);
         }
 
-      } else {
+      } else if (type == 2) {
+        QString login, password;
+        in >> login >> password;
+        qDebug() << socket->socketDescriptor() << " trying register: " << login;
+
+        QSqlQuery queryCheckUser("SELECT COUNT(*) FROM users where username='" + login +
+                        "'");
+        int count = 0;
+        if (queryCheckUser.next()) {
+          count = queryCheckUser.value(0).toInt();
+        }
+        if (!count) {
+          QSqlQuery query("INSERT INTO users (username, password) VALUES('" + login + "', '" + password + "');");
+          str = "OK";
+        } else {
+          str = "BAD";
+        }
+
+        SendToClient(str, 2, socket);
+      } else if (!type) {
         in >> tempSock >> str;
         SendToClient(str, 0);
         qDebug() << "Read " << str << " from " << socket->socketDescriptor();
@@ -92,7 +111,9 @@ void Server::SendToClient(const QString& str, const int type,
     auto sock = sockets_.find(tempSock);
     sock.value()->write(byteData_);
     qDebug() << sock.value()->socketDescriptor();
-  } else {
+  } else if (type == 1) {
+    senderSocket->write(byteData_);
+  } else if (type == 2) {
     senderSocket->write(byteData_);
   }
 }

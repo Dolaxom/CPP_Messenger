@@ -19,11 +19,16 @@ ClientView::ClientView(QWidget* parent) : QMainWindow(parent) {
           &MessengerView::loginSlot);
 
   connect(authorizationView, &AuthorizationView::registationSignal,
-          messengerView, &MessengerView::loginSlot);
+          messengerView, &MessengerView::registrationSlot);
 
   connect(messengerView, &MessengerView::successLoginSignal, this,
           &ClientView::successLoginSlot);
+  connect(messengerView, &MessengerView::successRegistrationSignal, this,
+          &ClientView::successRegistrationSlot);
 }
 void ClientView::successLoginSlot() {
+  stackedWidget->setCurrentWidget(messengerView);
+}
+void ClientView::successRegistrationSlot() {
   stackedWidget->setCurrentWidget(messengerView);
 }

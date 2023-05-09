@@ -41,5 +41,6 @@ class MessengerView : public QWidget {
 
  signals:
   void successLoginSignal();
+  void successRegistrationSignal();
 };
 #endif  // MESSENGERBASE_H

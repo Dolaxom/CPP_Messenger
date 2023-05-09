@@ -69,12 +69,18 @@ void MessengerView::slotReadyRead() {  // Приём данных
         qDebug() << "str: " << str;
         byteBlockSize_ = 0;
         chatBox->append(str);
-      } else {
+      } else if (type == 1) {
         qDebug() << "str: " << str;
         if (str.toInt() > 0) {
           emit successLoginSignal();
         } else {
           qDebug() << "Wrong password.";
+        }
+      } else if (type == 2) {
+        if (str == "OK") {
+          emit successRegistrationSignal();
+        } else if (str == "BAD") {
+          qDebug() << "User already registration.";
         }
       }
 
@@ -120,7 +126,7 @@ void MessengerView::registrationSlot(const QString& nickname,
                                      const QString& password) {
   byteData_.clear();
 
-  qDebug() << "MessengerView::loginSlot " << nickname;
+  qDebug() << "MessengerView::registrationSlot " << nickname;
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);

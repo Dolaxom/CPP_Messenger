@@ -10,6 +10,7 @@
 - CMake configurations
 
 06.05.2023
+
 ### Added
 - Makefile
 - Linters
@@ -17,13 +18,20 @@
 - Based client implementation
 
 07.05.2023
+
 ### Added
 - Connect PostgreSQL to Qt
 - Login form
 
 08.05.2023
+
 ### Added
 - Authorization
 
 ### Changed
 - Login form
+
+09.05.2023
+
+### Added
+- Registration
