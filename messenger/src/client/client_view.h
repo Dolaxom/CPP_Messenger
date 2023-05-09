@@ -19,10 +19,10 @@ class ClientView : public QMainWindow {
   ~ClientView() = default;
 
  private:
-  QStackedWidget* stackedWidget;
+  QStackedWidget* stackedWidget_;
 
-  MessengerView* messengerView;
-  AuthorizationView* authorizationView;
+  MessengerView* messengerView_;
+  AuthorizationView* authorizationView_;
 
  private slots:
   void successLoginSlot();

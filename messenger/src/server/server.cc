@@ -103,7 +103,10 @@ void Server::slotReadyRead() {
         QString senderName, receiverName, message;
         in >> senderName >> receiverName >> message;
 
-        QSqlQuery query("INSERT INTO messages (sender_name, receiver_name, message) VALUES ('" + senderName + "', '" + receiverName + "', '" + message + "');");
+        QSqlQuery query(
+            "INSERT INTO messages (sender_name, receiver_name, message) VALUES "
+            "('" +
+            senderName + "', '" + receiverName + "', '" + message + "');");
       }
 
       byteBlockSize_ = 0;
@@ -121,12 +124,12 @@ void Server::SendToClient(const QString& str, const int type,
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
 
-  out << quint16(0) << type << tempSock << str;
+  out << quint16(0) << type << tempSock_ << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
 
   if (!type) {
-    auto sock = sockets_.find(tempSock);
+    auto sock = sockets_.find(tempSock_);
     sock.value()->write(byteData_);
     qDebug() << sock.value()->socketDescriptor();
   } else if (type == 1) {
@@ -147,20 +150,20 @@ void Server::clientDisconnected() {
 }
 
 void Server::initPostgres() {
-  db = QSqlDatabase::addDatabase("QPSQL");
+  db_ = QSqlDatabase::addDatabase("QPSQL");
 
   PostgresConfiguration psqlConf;
   Utilities::readPostgresConfig("postgres.conf", psqlConf);
 
-  db.setHostName(psqlConf.hostName);
-  db.setPort(psqlConf.hostPort);
-  db.setDatabaseName(psqlConf.databaseName);
-  db.setUserName(psqlConf.userName);
-  db.setPassword(psqlConf.userPassword);
+  db_.setHostName(psqlConf.hostName);
+  db_.setPort(psqlConf.hostPort);
+  db_.setDatabaseName(psqlConf.databaseName);
+  db_.setUserName(psqlConf.userName);
+  db_.setPassword(psqlConf.userPassword);
 
-  if (!db.open()) {
-    qDebug() << "Error opening database:" << db.lastError().text();
+  if (!db_.open()) {
+    qDebug() << "Error opening database:" << db_.lastError().text();
   }
 }
 
-Server::~Server() { db.close(); }
+Server::~Server() { db_.close(); }

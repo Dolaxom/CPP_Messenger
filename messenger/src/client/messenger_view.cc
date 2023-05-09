@@ -3,46 +3,46 @@
 MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
   clientData_ = new Client();
 
-  nicknameLabel = new QLabel();
-  nicknameLabel->setAlignment(Qt::AlignCenter);
+  nicknameLabel_ = new QLabel();
+  nicknameLabel_->setAlignment(Qt::AlignCenter);
 
-  chatBox = new QTextEdit();
-  chatBox->setReadOnly(true);
+  chatBox_ = new QTextEdit();
+  chatBox_->setReadOnly(true);
 
-  messageBox = new QTextEdit();
-  messageBox->setFixedHeight(30);
+  messageBox_ = new QTextEdit();
+  messageBox_->setFixedHeight(30);
 
-  findUserLayout = new QHBoxLayout();
-  findUserButton = new QPushButton("Find");
+  findUserLayout_ = new QHBoxLayout();
+  findUserButton_ = new QPushButton("Find");
 
-  sendButton = new QPushButton("Send");
-  connect(sendButton, &QPushButton::clicked, this,
+  sendButton_ = new QPushButton("Send");
+  connect(sendButton_, &QPushButton::clicked, this,
           &MessengerView::onSendButtonClicked);
-  connect(findUserButton, &QPushButton::clicked, this,
+  connect(findUserButton_, &QPushButton::clicked, this,
           &MessengerView::onFindUserButtonClicked);
 
   QLabel* targetUserLabel = new QLabel("Enter target username:");
-  targetUser = new QTextEdit();
-  targetUser->setFixedHeight(30);
+  targetUser_ = new QTextEdit();
+  targetUser_->setFixedHeight(30);
 
-  chatLayout = new QVBoxLayout();
-  findUserLayout->addWidget(targetUser);
-  findUserLayout->addWidget(findUserButton);
-  chatLayout->addWidget(targetUserLabel);
-  chatLayout->addLayout(findUserLayout);
-  chatLayout->addWidget(targetUser);
-  chatLayout->addWidget(chatBox);
+  chatLayout_ = new QVBoxLayout();
+  findUserLayout_->addWidget(targetUser_);
+  findUserLayout_->addWidget(findUserButton_);
+  chatLayout_->addWidget(targetUserLabel);
+  chatLayout_->addLayout(findUserLayout_);
+  chatLayout_->addWidget(targetUser_);
+  chatLayout_->addWidget(chatBox_);
 
-  messageLayout = new QHBoxLayout();
-  messageLayout->addWidget(messageBox);
-  messageLayout->addWidget(sendButton);
+  messageLayout_ = new QHBoxLayout();
+  messageLayout_->addWidget(messageBox_);
+  messageLayout_->addWidget(sendButton_);
 
-  mainLayout = new QVBoxLayout();
-  mainLayout->addWidget(nicknameLabel);
-  mainLayout->addLayout(chatLayout);
-  mainLayout->addLayout(messageLayout);
+  mainLayout_ = new QVBoxLayout();
+  mainLayout_->addWidget(nicknameLabel_);
+  mainLayout_->addLayout(chatLayout_);
+  mainLayout_->addLayout(messageLayout_);
 
-  setLayout(mainLayout);
+  setLayout(mainLayout_);
 
   serverSocket_ = new QTcpSocket(this);
   serverSocket_->setSocketOption(QAbstractSocket::LowDelayOption, 1);
@@ -84,7 +84,7 @@ void MessengerView::slotReadyRead() {
 
       if (!type) {
         byteBlockSize_ = 0;
-        chatBox->append(str);
+        chatBox_->append(str);
       } else if (type == 1) {
         byteBlockSize_ = 0;
         qDebug() << "str: " << str;
@@ -102,7 +102,7 @@ void MessengerView::slotReadyRead() {
         }
       } else if (type == 3) {
         byteBlockSize_ = 0;
-        chatBox->append(str);
+        chatBox_->append(str);
       }
 
       break;
@@ -119,25 +119,26 @@ void MessengerView::sendToServer(const QString& str) {
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
-  out << quint16(0) << int(0) << clientData_->username << targetUser->toPlainText() << str;
+  out << quint16(0) << int(0) << clientData_->username
+      << targetUser_->toPlainText() << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
 }
 
 void MessengerView::onSendButtonClicked() {
-  sendToServer(messageBox->toPlainText());
-  messageBox->clear();
+  sendToServer(messageBox_->toPlainText());
+  messageBox_->clear();
 }
 
 void MessengerView::onFindUserButtonClicked() {
-  chatBox->clear();
+  chatBox_->clear();
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
   out << quint16(0) << int(3) << clientData_->username
-      << targetUser->toPlainText();
+      << targetUser_->toPlainText();
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
@@ -170,5 +171,5 @@ void MessengerView::registrationSlot(const QString& nickname,
 }
 
 void MessengerView::setUsername() {
-  nicknameLabel->setText(clientData_->username);
+  nicknameLabel_->setText(clientData_->username);
 }

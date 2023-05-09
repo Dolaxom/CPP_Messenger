@@ -17,12 +17,12 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Sql)
 
 set(PROJECT_SOURCES
-        main.cpp
-        messenger_view.cpp
+        main.cc
+        messenger_view.cc
         messenger_view.h
-        authorization_view.cpp
+        authorization_view.cc
         authorization_view.h
-        client_view.cpp
+        client_view.cc
         client_view.h
         client_data.h
         )

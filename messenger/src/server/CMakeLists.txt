@@ -27,7 +27,9 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Network Sql)
 set(POSTGRESQL_ROOT /Users/thedolaxom/.brew/Cellar/postgresql@14/14.7)
 
 set(PROJECT_SOURCES
-        main.cpp server.cpp server.h utilities.cpp utilities.h
+        main.cc
+        server.cc server.h
+        utilities.cc utilities.h
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

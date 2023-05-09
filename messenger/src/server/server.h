@@ -21,8 +21,8 @@ class Server : public QTcpServer {
   void SendToClient(const QString &str, int type,
                     QTcpSocket *senderSocket = nullptr);
   quint16 byteBlockSize_;
-  QSqlDatabase db;
-  uint tempSock;
+  QSqlDatabase db_;
+  uint tempSock_;
 
  public slots:
   // Обработчик новых подключений
