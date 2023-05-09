@@ -2,8 +2,7 @@
 
 #include "utilities.h"
 
-Server::Server() : byteBlockSize_{0}
-{
+Server::Server() : byteBlockSize_{0} {
   if (this->listen(QHostAddress::Any, 2323)) {
     qDebug() << "Server is running on port" << this->serverPort();
   } else {
