@@ -56,6 +56,7 @@ void MessengerView::slotReadyRead() {  // Приём данных
         in >> byteBlockSize_;
       }
       if (serverSocket_->bytesAvailable() < byteBlockSize_) {
+        qDebug() << "MessengerView::slotReadyRead() dead memory";
         break;
       }
 
@@ -70,6 +71,7 @@ void MessengerView::slotReadyRead() {  // Приём данных
         byteBlockSize_ = 0;
         chatBox->append(str);
       } else if (type == 1) {
+        byteBlockSize_ = 0;
         qDebug() << "str: " << str;
         if (str.toInt() > 0) {
           emit successLoginSignal();
@@ -77,6 +79,7 @@ void MessengerView::slotReadyRead() {  // Приём данных
           emit oppositeLoginSignal();
         }
       } else if (type == 2) {
+        byteBlockSize_ = 0;
         if (str == "OK") {
           emit successRegistrationSignal();
         } else if (str == "BAD") {
@@ -122,6 +125,7 @@ void MessengerView::loginSlot(const QString& nickname,
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
 }
+
 void MessengerView::registrationSlot(const QString& nickname,
                                      const QString& password) {
   byteData_.clear();
