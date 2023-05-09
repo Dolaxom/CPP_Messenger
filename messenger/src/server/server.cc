@@ -2,14 +2,14 @@
 
 #include "utilities.h"
 
-Server::Server() {
+Server::Server() : byteBlockSize_{0}
+{
   if (this->listen(QHostAddress::Any, 2323)) {
-    qDebug() << "Server run";
+    qDebug() << "Server is running on port" << this->serverPort();
   } else {
-    qDebug() << "Server error";
+    qDebug() << "Server failed to start";
   }
 
-  byteBlockSize_ = 0;
   initPostgres();
 }
 
@@ -47,66 +47,93 @@ void Server::slotReadyRead() {
         break;
       }
 
-      int type = 0;
       QString str;
+      int type = 0;
       in >> type;
-      if (type == 1) {
-        QString login, password;
-        in >> login >> password;
-        qDebug() << socket->socketDescriptor() << " trying auth: " << login;
 
-        QSqlQuery query("SELECT COUNT(*) FROM users where username='" + login +
-                        "' AND password='" + password + "'");
-        if (query.next()) {
-          int count = query.value(0).toInt();
-          str = QString::number(count);
-          SendToClient(str, 1, socket);
+      switch (type) {
+        case 0: {
+          QString senderName, receiverName, message;
+          in >> senderName >> receiverName >> message;
+
+          QString queryStr =
+              QString(
+                  "INSERT INTO messages (sender_name, receiver_name, message) "
+                  "VALUES ('%1', '%2', '%3')")
+                  .arg(senderName)
+                  .arg(receiverName)
+                  .arg(message);
+          QSqlQuery query(queryStr);
+          break;
         }
-      } else if (type == 2) {
-        QString login, password;
-        in >> login >> password;
-        qDebug() << socket->socketDescriptor() << " trying register: " << login;
+        case 1: {
+          QString login, password;
+          in >> login >> password;
+          qDebug() << socket->socketDescriptor() << " trying auth: " << login;
 
-        QSqlQuery queryCheckUser("SELECT COUNT(*) FROM users where username='" +
-                                 login + "'");
-        int count = 0;
-        if (queryCheckUser.next()) {
-          count = queryCheckUser.value(0).toInt();
+          QString queryStr = QString(
+                                 "SELECT COUNT(*) FROM users WHERE "
+                                 "username='%1' AND password='%2'")
+                                 .arg(login)
+                                 .arg(password);
+          QSqlQuery query(queryStr);
+          if (query.next()) {
+            int count = query.value(0).toInt();
+            str = QString::number(count);
+            SendToClient(str, 1, socket);
+          }
+          break;
         }
-        if (!count) {
-          QSqlQuery query("INSERT INTO users (username, password) VALUES('" +
-                          login + "', '" + password + "');");
-          str = "OK";
-        } else {
-          str = "BAD";
+        case 2: {
+          QString login, password;
+          in >> login >> password;
+
+          QString queryStrCheckUser =
+              QString("SELECT COUNT(*) FROM users WHERE username='%1'")
+                  .arg(login);
+          QSqlQuery queryCheckUser(queryStrCheckUser);
+          int count = 0;
+          if (queryCheckUser.next()) {
+            count = queryCheckUser.value(0).toInt();
+          }
+          if (!count) {
+            QString queryStrInsert =
+                QString(
+                    "INSERT INTO users (username, password) VALUES('%1', '%2')")
+                    .arg(login)
+                    .arg(password);
+            QSqlQuery queryInsert(queryStrInsert);
+            str = "OK";
+          } else {
+            str = "BAD";
+          }
+
+          SendToClient(str, 2, socket);
+          break;
         }
+        case 3: {
+          QString senderName, receiverName;
+          in >> senderName >> receiverName;
 
-        SendToClient(str, 2, socket);
-      } else if (type == 3) {
-        QString senderName, receiverName;
-        in >> senderName >> receiverName;
-
-        qDebug() << socket->socketDescriptor()
-                 << " trying load message history.";
-        QSqlQuery query(
-            "SELECT sender_name, message FROM messages WHERE sender_name = '" +
-            senderName + "' AND receiver_name = '" + receiverName +
-            "' OR sender_name = '" + receiverName + "' AND receiver_name = '" +
-            senderName + "' ORDER BY sent_time ASC;");
-
-        while (query.next()) {
-          str += query.value(0).toString() + ": " + query.value(1).toString() +
-                 '\n';
+          QString queryStr =
+              QString(
+                  "SELECT sender_name, message FROM messages WHERE "
+                  "sender_name='%1' AND receiver_name='%2' OR sender_name='%3' "
+                  "AND receiver_name='%4' ORDER BY sent_time ASC")
+                  .arg(senderName)
+                  .arg(receiverName)
+                  .arg(receiverName)
+                  .arg(senderName);
+          QSqlQuery query(queryStr);
+          while (query.next()) {
+            str += query.value(0).toString() + ": " +
+                   query.value(1).toString() + '\n';
+          }
+          SendToClient(str, 3, socket);
+          break;
         }
-        SendToClient(str, 3, socket);
-      } else if (!type) {
-        QString senderName, receiverName, message;
-        in >> senderName >> receiverName >> message;
-
-        QSqlQuery query(
-            "INSERT INTO messages (sender_name, receiver_name, message) VALUES "
-            "('" +
-            senderName + "', '" + receiverName + "', '" + message + "');");
+        default:
+          break;
       }
 
       byteBlockSize_ = 0;
@@ -144,7 +171,11 @@ void Server::SendToClient(const QString& str, const int type,
 void Server::clientDisconnected() {
   auto* socket = qobject_cast<QTcpSocket*>(sender());
   if (socket) {
-    qDebug() << "client disconnected: " << socket->socketDescriptor();
+    if (socket->error() != QAbstractSocket::RemoteHostClosedError) {
+      qDebug() << "client disconnected with error: " << socket->errorString();
+    } else {
+      qDebug() << "client disconnected: " << socket->socketDescriptor();
+    }
     sockets_.remove(socket->socketDescriptor());
   }
 }
@@ -163,7 +194,10 @@ void Server::initPostgres() {
 
   if (!db_.open()) {
     qDebug() << "Error opening database:" << db_.lastError().text();
+    return;
   }
+
+  qDebug() << "Connected to PostgreSQL database.";
 }
 
 Server::~Server() { db_.close(); }

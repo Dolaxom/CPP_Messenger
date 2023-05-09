@@ -35,9 +35,16 @@
 
 ### Added
 - Registration
-- Message history 
+- Message history
+
+### Changed
+- Messenger form
 
 10.05.2023
 
 ### Added
 - Sending messages
+
+### Changed
+- .cpp files -> .cc files (Google-style)
+- Server refactoring
