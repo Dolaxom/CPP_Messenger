@@ -141,15 +141,6 @@ void Server::initPostgres() {
   if (!db.open()) {
     qDebug() << "Error opening database:" << db.lastError().text();
   }
-  //
-  //  QSqlQuery query("SELECT * FROM users");
-  //  while (query.next()) {
-  //    int id = query.value(0).toInt();
-  //    QString username = query.value(1).toString();
-  //    QString password = query.value(2).toString();
-  //    qDebug() << id << username << password;
-  //  }
-  //
 }
 
 Server::~Server() { db.close(); }
