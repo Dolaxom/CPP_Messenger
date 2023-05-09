@@ -68,14 +68,15 @@ void Server::slotReadyRead() {
         in >> login >> password;
         qDebug() << socket->socketDescriptor() << " trying register: " << login;
 
-        QSqlQuery queryCheckUser("SELECT COUNT(*) FROM users where username='" + login +
-                        "'");
+        QSqlQuery queryCheckUser("SELECT COUNT(*) FROM users where username='" +
+                                 login + "'");
         int count = 0;
         if (queryCheckUser.next()) {
           count = queryCheckUser.value(0).toInt();
         }
         if (!count) {
-          QSqlQuery query("INSERT INTO users (username, password) VALUES('" + login + "', '" + password + "');");
+          QSqlQuery query("INSERT INTO users (username, password) VALUES('" +
+                          login + "', '" + password + "');");
           str = "OK";
         } else {
           str = "BAD";
