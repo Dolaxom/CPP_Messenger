@@ -16,12 +16,15 @@ class AuthorizationView : public QWidget {
 
   ~AuthorizationView() = default;
 
+  void setWarning(const QString&& str);
+
  private:
   QLineEdit* usernameEdit_;
   QLineEdit* passwordEdit_;
   QPushButton* loginButton_;
   QPushButton* registerButton_;
   QFormLayout* layout_;
+  QLabel* warningLabel_;
 
   void tryAuthorization();
   void tryRegistration();

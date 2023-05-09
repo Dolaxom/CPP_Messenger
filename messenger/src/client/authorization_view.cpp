@@ -2,14 +2,15 @@
 
 AuthorizationView::AuthorizationView(QWidget* parent) : QWidget(parent) {
   layout_ = new QFormLayout();
+  warningLabel_ = new QLabel("");
   usernameEdit_ = new QLineEdit();
   passwordEdit_ = new QLineEdit();
   passwordEdit_->setEchoMode(QLineEdit::Password);
-  loginButton_ = new QPushButton("Войти");
-  registerButton_ = new QPushButton("Зарегистрироваться");
+  loginButton_ = new QPushButton("Login");
+  registerButton_ = new QPushButton("Signup");
   layout_->setLabelAlignment(Qt::AlignLeft);
-  layout_->addRow("Имя пользователя:", usernameEdit_);
-  layout_->addRow("Пароль:", passwordEdit_);
+  layout_->addRow("Username:", usernameEdit_);
+  layout_->addRow("Password:", passwordEdit_);
   QHBoxLayout* buttonLayout = new QHBoxLayout();
   QSpacerItem* leftSpacer =
       new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -21,6 +22,8 @@ AuthorizationView::AuthorizationView(QWidget* parent) : QWidget(parent) {
   buttonLayout->addItem(rightSpacer);
   QVBoxLayout* mainLayout = new QVBoxLayout(this);
   mainLayout->addStretch();
+  mainLayout->addWidget(warningLabel_);
+  warningLabel_->setAlignment(Qt::AlignCenter);
   mainLayout->addLayout(layout_);
   mainLayout->addLayout(buttonLayout);
   mainLayout->addStretch();
@@ -38,6 +41,13 @@ AuthorizationView::AuthorizationView(QWidget* parent) : QWidget(parent) {
 void AuthorizationView::tryAuthorization() {
   emit loginSignal(usernameEdit_->text(), passwordEdit_->text());
 }
+
 void AuthorizationView::tryRegistration() {
   emit registationSignal(usernameEdit_->text(), passwordEdit_->text());
+}
+
+void AuthorizationView::setWarning(const QString&& str) {
+  usernameEdit_->clear();
+  passwordEdit_->clear();
+  warningLabel_->setText(str);
 }

@@ -27,5 +27,7 @@ class ClientView : public QMainWindow {
  private slots:
   void successLoginSlot();
   void successRegistrationSlot();
+  void oppositeLoginSlot();
+  void oppositeRegistrationSlot();
 };
 #endif  // MESSENGER_VIEW_H

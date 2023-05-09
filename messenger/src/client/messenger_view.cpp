@@ -74,13 +74,13 @@ void MessengerView::slotReadyRead() {  // Приём данных
         if (str.toInt() > 0) {
           emit successLoginSignal();
         } else {
-          qDebug() << "Wrong password.";
+          emit oppositeLoginSignal();
         }
       } else if (type == 2) {
         if (str == "OK") {
           emit successRegistrationSignal();
         } else if (str == "BAD") {
-          qDebug() << "User already registration.";
+          emit oppositeRegistrationSignal();
         }
       }
 
