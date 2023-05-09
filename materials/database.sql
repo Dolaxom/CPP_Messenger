@@ -6,8 +6,8 @@ CREATE TABLE users (
 
 CREATE TABLE messages (
     id SERIAL PRIMARY KEY,
-    sender_id INTEGER NOT NULL REFERENCES users(id),
-    receiver_id INTEGER NOT NULL REFERENCES users(id),
+    sender_name VARCHAR(50) NOT NULL,
+    receiver_name VARCHAR(50) NOT NULL,
     message TEXT NOT NULL,
-    sent_at TIMESTAMP NOT NULL DEFAULT NOW()
+    sent_time TIMESTAMP NOT NULL DEFAULT NOW()
 );
