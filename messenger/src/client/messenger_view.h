@@ -25,16 +25,18 @@ class MessengerView : public QWidget {
 
   QTcpSocket *serverSocket_;
   QByteArray byteData_;
-  void sendToServer(const QString &str);
   quint16 byteBlockSize_;
-  QTextEdit *chooseSocket;
+  void sendToServer(const QString &str);
 
   QLabel *nicknameLabel;
   QTextEdit *chatBox;
   QTextEdit *messageBox;
+  QTextEdit *targetUser;
   QPushButton *sendButton;
+  QPushButton *findUserButton;
   QVBoxLayout *chatLayout;
   QHBoxLayout *messageLayout;
+  QHBoxLayout *findUserLayout;
   QVBoxLayout *mainLayout;
 
  public slots:

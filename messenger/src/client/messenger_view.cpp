@@ -12,19 +12,27 @@ MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
   messageBox = new QTextEdit();
   messageBox->setFixedHeight(30);
 
+  findUserLayout = new QHBoxLayout();
+  findUserButton = new QPushButton("Find");
+
   sendButton = new QPushButton("Send");
   connect(sendButton, &QPushButton::clicked, this,
           &MessengerView::onSendButtonClicked);
 
-  chooseSocket = new QTextEdit();
-  chooseSocket->setFixedHeight(30);
+  QLabel* targetUserLabel = new QLabel("Enter target username:");
+  targetUser = new QTextEdit();
+  targetUser->setFixedHeight(30);
 
   chatLayout = new QVBoxLayout();
+  findUserLayout->addWidget(targetUser);
+  findUserLayout->addWidget(findUserButton);
+  chatLayout->addWidget(targetUserLabel);
+  chatLayout->addLayout(findUserLayout);
+  chatLayout->addWidget(targetUser);
   chatLayout->addWidget(chatBox);
 
   messageLayout = new QHBoxLayout();
   messageLayout->addWidget(messageBox);
-  messageLayout->addWidget(chooseSocket);
   messageLayout->addWidget(sendButton);
 
   mainLayout = new QVBoxLayout();
@@ -105,7 +113,7 @@ void MessengerView::sendToServer(const QString& str) {
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
-  out << quint16(0) << int(0) << chooseSocket->toPlainText().toUInt() << str;
+  out << quint16(0) << int(0) << targetUser->toPlainText().toUInt() << str;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
