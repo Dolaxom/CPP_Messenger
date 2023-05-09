@@ -35,6 +35,7 @@ ClientView::ClientView(QWidget* parent) : QMainWindow(parent) {
 }
 
 void ClientView::successLoginSlot() {
+  messengerView->setUsername();
   stackedWidget->setCurrentWidget(messengerView);
 }
 

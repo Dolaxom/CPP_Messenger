@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
         authorization_view.h
         client_view.cpp
         client_view.h
+        client_data.h
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

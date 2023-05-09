@@ -9,14 +9,20 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "client_data.h"
+
 class MessengerView : public QWidget {
   Q_OBJECT
 
  public:
   explicit MessengerView(QWidget *parent = nullptr);
-  ~MessengerView() = default;
+  ~MessengerView();
+
+  void setUsername();
 
  private:
+  Client *clientData_;
+
   QTcpSocket *serverSocket_;
   QByteArray byteData_;
   void sendToServer(const QString &str);

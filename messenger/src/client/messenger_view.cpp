@@ -1,7 +1,9 @@
 #include "messenger_view.h"
 
 MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
-  nicknameLabel = new QLabel("Nikolai");
+  clientData_ = new Client();
+
+  nicknameLabel = new QLabel();
   nicknameLabel->setAlignment(Qt::AlignCenter);
 
   chatBox = new QTextEdit();
@@ -43,6 +45,8 @@ MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
 
   byteBlockSize_ = 0;
 }
+
+MessengerView::~MessengerView() { delete clientData_; }
 
 void MessengerView::slotReadyRead() {  // Приём данных
   QDataStream in(serverSocket_);
@@ -116,7 +120,7 @@ void MessengerView::loginSlot(const QString& nickname,
                               const QString& password) {
   byteData_.clear();
 
-  qDebug() << "MessengerView::loginSlot " << nickname;
+  clientData_->username = nickname;
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
@@ -130,12 +134,14 @@ void MessengerView::registrationSlot(const QString& nickname,
                                      const QString& password) {
   byteData_.clear();
 
-  qDebug() << "MessengerView::registrationSlot " << nickname;
-
   QDataStream out(&byteData_, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_6_4);
   out << quint16(0) << int(2) << nickname << password;
   out.device()->seek(0);
   out << quint16(byteData_.size() - sizeof(quint16));
   serverSocket_->write(byteData_);
+}
+
+void MessengerView::setUsername() {
+  nicknameLabel->setText(clientData_->username);
 }
