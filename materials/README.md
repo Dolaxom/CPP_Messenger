@@ -2,16 +2,13 @@
 
 ![Application](/misc/images/msgnr3.png)
 
-### Application architecture diagram:
+### Диаграмма архитектуры приложения:
 ![Diagram](/misc/images/msgnr1.png)
 
-#### Client
-***Client*** class encapsulates ***authorization*** and ***messenger*** widgets. The ***authorization*** class contains only signals and slots for working with the authorization interface. The ***messenger*** class contains communication with the server and the messenger interface.
-
-#### Server
-The ***server*** contains all the functions for processing input values from the client and writing them to the database, as well as transferring data from the database to the client. There is a separate ***utilities*** class for the server to help the server work, it contains a set of functions different from network ones.
-
-### Database architecture diagram:
+### Диаграма базы данных:
 ![Diagram2](/misc/images/msgnr2.png)
 
-The users table from the non-obvious stores the current socket (token) of the session. It is needed so that the sender and recipient receive messages in real time without reloading the session. You can find the sources of the SQL tables in the `materials/` folder!
+PS в таблице users хранится текущий сокет (токен) сеанса. Это необходимо для того, чтобы отправитель и получатель получали сообщения без перезагрузки сеанса.
+
+Сборка проекта:
+На данный момент нет поддержки Conan, из сторонних библиотек используются только либы для PostgreSQL. Есть 2 отдельных мейкфайла, один для сборки клиента и другой для сборки сервера. Могут быть проблемы с запуском сервера - фиксится легко, надо .conf файл для Postgres-а переложить к исполняемому файлу, либо изменить путь к .conf файлу в аргументах функции, которая его подгружает (Пофикшу это в ближайшее время, не успел сделать нормальные файлы сборки. Тестировал только на Linux и MacOS.
