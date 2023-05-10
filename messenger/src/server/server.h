@@ -26,6 +26,11 @@ class Server : public QTcpServer {
   QSqlDatabase db_;
   uint tempSock_;
 
+  void readMessage(QTcpSocket *socket, QDataStream &in, QString &str);
+  void readAuthentication(QTcpSocket *socket, QDataStream &in, QString &str);
+  void readRegistration(QTcpSocket *socket, QDataStream &in, QString &str);
+  void readMessageHistory(QTcpSocket *socket, QDataStream &in, QString &str);
+
  public slots:
   // Обработчик новых подключений
   void incomingConnection(qintptr socketDescriptor) override;
