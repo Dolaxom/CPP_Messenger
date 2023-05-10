@@ -2,6 +2,8 @@
 
 [Русская версия находится в папке materials/]
 
+![Application](misc/images/msgnr3.png)
+
 ### Application architecture diagram:
 ![Diagram](misc/images/msgnr1.png)
 
@@ -12,6 +14,6 @@
 The ***server*** contains all the functions for processing input values from the client and writing them to the database, as well as transferring data from the database to the client. There is a separate ***utilities*** class for the server to help the server work, it contains a set of functions different from network ones.
 
 ### Database architecture diagram:
-![Diagram](misc/images/msgnr2.png)
+![Diagram2](misc/images/msgnr2.png)
 
 The users table from the non-obvious stores the current socket (token) of the session. It is needed so that the sender and recipient receive messages in real time without reloading the session. You can find the sources of the SQL tables in the `materials/` folder!
