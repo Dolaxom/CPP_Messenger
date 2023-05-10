@@ -2,7 +2,8 @@
 
 #include "../types.h"
 
-MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
+MessengerView::MessengerView(QWidget* parent)
+    : QWidget(parent), byteBlockSize_{0} {
   clientData_ = new Client();
 
   nicknameLabel_ = new QLabel();
@@ -55,8 +56,6 @@ MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
           &QTcpSocket::deleteLater);
 
   serverSocket_->connectToHost("127.0.0.1", 2323);
-
-  byteBlockSize_ = 0;
 }
 
 MessengerView::~MessengerView() { delete clientData_; }
