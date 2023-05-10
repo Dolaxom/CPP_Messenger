@@ -4,7 +4,7 @@
 
 #include "client.h"
 
-ClientView::ClientView(QWidget* parent) : QMainWindow(parent) {
+Client::Client(QWidget* parent) : QMainWindow(parent) {
   stackedWidget_ = new QStackedWidget(this);
 
   authorizationView_ = new Authorization(this);
@@ -22,31 +22,31 @@ ClientView::ClientView(QWidget* parent) : QMainWindow(parent) {
           messengerView_, &Messenger::registrationSlot);
 
   connect(messengerView_, &Messenger::successLoginSignal, this,
-          &ClientView::successLoginSlot);
+          &Client::successLoginSlot);
 
   connect(messengerView_, &Messenger::successRegistrationSignal, this,
-          &ClientView::successRegistrationSlot);
+          &Client::successRegistrationSlot);
 
   connect(messengerView_, &Messenger::oppositeLoginSignal, this,
-          &ClientView::oppositeLoginSlot);
+          &Client::oppositeLoginSlot);
 
   connect(messengerView_, &Messenger::oppositeRegistrationSignal, this,
-          &ClientView::oppositeRegistrationSlot);
+          &Client::oppositeRegistrationSlot);
 }
 
-void ClientView::successLoginSlot() {
+void Client::successLoginSlot() {
   messengerView_->setUsername();
   stackedWidget_->setCurrentWidget(messengerView_);
 }
 
-void ClientView::successRegistrationSlot() {
+void Client::successRegistrationSlot() {
   authorizationView_->setWarning("Successful registration! Now you can login!");
 }
 
-void ClientView::oppositeLoginSlot() {
+void Client::oppositeLoginSlot() {
   authorizationView_->setWarning("Wrong username or password.");
 }
 
-void ClientView::oppositeRegistrationSlot() {
+void Client::oppositeRegistrationSlot() {
   authorizationView_->setWarning("A user with the same name already exists.");
 }

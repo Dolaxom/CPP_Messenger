@@ -3,8 +3,10 @@
 
 #include <QString>
 
-struct Client {
-  Client() = default;
+struct ClientData {
+  ClientData() = default;
+  ClientData(const ClientData&) = delete;
+  void operator=(const ClientData&) = delete;
 
   QString username;
 };

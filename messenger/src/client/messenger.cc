@@ -4,7 +4,7 @@
 
 Messenger::Messenger(QWidget* parent)
     : QWidget(parent), byteBlockSize_{0} {
-  clientData_ = new Client();
+  clientData_ = new ClientData();
 
   nicknameLabel_ = new QLabel();
   nicknameLabel_->setAlignment(Qt::AlignCenter);

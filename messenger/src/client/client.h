@@ -11,12 +11,12 @@
 #include "authorization.h"
 #include "messenger.h"
 
-class ClientView : public QMainWindow {
+class Client : public QMainWindow {
   Q_OBJECT
 
  public:
-  ClientView(QWidget* parent = nullptr);
-  ~ClientView() = default;
+   Client(QWidget* parent = nullptr);
+  ~Client() = default;
 
  private:
   QStackedWidget* stackedWidget_;

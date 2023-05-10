@@ -21,7 +21,7 @@ class Messenger : public QWidget {
   void setUsername();
 
  private:
-  Client *clientData_;
+   ClientData *clientData_;
 
   QTcpSocket *serverSocket_;
   QByteArray byteData_;
