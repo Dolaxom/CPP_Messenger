@@ -1,5 +1,6 @@
 #include "server.h"
 
+#include "../types.h"
 #include "utilities.h"
 
 Server::Server() : byteBlockSize_{0} {
@@ -53,7 +54,7 @@ void Server::slotReadyRead() {
       in >> type;
 
       switch (type) {
-        case 0: {
+        case DataType::Message: {
           QString senderName, receiverName, message;
           in >> senderName >> receiverName >> message;
 
@@ -84,7 +85,7 @@ void Server::slotReadyRead() {
           delete receiverSocket;
           break;
         }
-        case 1: {
+        case DataType::Authentication: {
           QString login, password;
           in >> login >> password;
           qDebug() << socket->socketDescriptor() << " trying auth: " << login;
@@ -121,7 +122,7 @@ void Server::slotReadyRead() {
 
           break;
         }
-        case 2: {
+        case DataType::Registration: {
           QString login, password;
           in >> login >> password;
 
@@ -150,7 +151,7 @@ void Server::slotReadyRead() {
           SendToClient(str, 2, sockets);
           break;
         }
-        case 3: {
+        case DataType::HistoryLoading: {
           QString senderName, receiverName;
           in >> senderName >> receiverName;
 

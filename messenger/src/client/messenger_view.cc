@@ -1,5 +1,7 @@
 #include "messenger_view.h"
 
+#include "../types.h"
+
 MessengerView::MessengerView(QWidget* parent) : QWidget(parent) {
   clientData_ = new Client();
 
@@ -82,29 +84,40 @@ void MessengerView::slotReadyRead() {
 
       in >> type >> sock >> str;
 
-      if (!type) {
-        byteBlockSize_ = 0;
-        chatBox_->append(str);
-      } else if (type == 1) {
-        byteBlockSize_ = 0;
-        qDebug() << "str: " << str;
-        if (str.toInt() > 0) {
-          emit successLoginSignal();
-        } else {
-          emit oppositeLoginSignal();
+      switch (type) {
+        case DataType::Message: {
+          byteBlockSize_ = 0;
+          chatBox_->append(str);
+          break;
         }
-      } else if (type == 2) {
-        byteBlockSize_ = 0;
-        if (str == "OK") {
-          emit successRegistrationSignal();
-        } else if (str == "BAD") {
-          emit oppositeRegistrationSignal();
+        case DataType::Authentication: {
+          byteBlockSize_ = 0;
+          qDebug() << "str: " << str;
+          if (str.toInt() > 0) {
+            emit successLoginSignal();
+          } else {
+            emit oppositeLoginSignal();
+          }
+          break;
         }
-      } else if (type == 3) {
-        byteBlockSize_ = 0;
-        chatBox_->append(str);
+        case DataType::Registration: {
+          byteBlockSize_ = 0;
+          if (str == "OK") {
+            emit successRegistrationSignal();
+          } else if (str == "BAD") {
+            emit oppositeRegistrationSignal();
+          }
+          break;
+        }
+        case DataType::HistoryLoading: {
+          byteBlockSize_ = 0;
+          chatBox_->append(str);
+          break;
+        }
+        default:
+          qDebug() << "Unknown message type";
+          break;
       }
-
       break;
     }
   } else {
