@@ -17,3 +17,6 @@ The ***server*** contains all the functions for processing input values from the
 ![Diagram2](misc/images/msgnr2.png)
 
 The users table from the non-obvious stores the current socket (token) of the session. It is needed so that the sender and recipient receive messages in real time without reloading the session. You can find the sources of the SQL tables in the `materials/` folder!
+
+### Build
+At the moment there is no Conan support, only PostgreSQL libs are used from third-party libraries. There are 2 separate makefiles, one for building the client and the other for building the server. There may be problems with starting the server - it is easy to fix, it is necessary.move the conf file for Postgres to the executable file, or change the path to the .conf file in the arguments of the function that loads it (I'll fix it in the near future, I didn't have time to make normal CMake+Makefile files. Tested only on Linux (Ubuntu) and MacOS.
