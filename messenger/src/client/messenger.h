@@ -21,12 +21,15 @@ class Messenger : public QWidget {
   void setUsername();
 
  private:
-   ClientData *clientData_;
+  ClientData *clientData_;
 
   QTcpSocket *serverSocket_;
   QByteArray byteData_;
   quint16 byteBlockSize_;
   void sendToServer(const QString &str);
+
+  void createUI();
+  void setupClientAndServer();
 
   QLabel *nicknameLabel_;
   QTextEdit *chatBox_;

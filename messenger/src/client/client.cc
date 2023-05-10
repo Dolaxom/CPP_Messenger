@@ -18,8 +18,8 @@ Client::Client(QWidget* parent) : QMainWindow(parent) {
   connect(authorizationView_, &Authorization::loginSignal, messengerView_,
           &Messenger::loginSlot);
 
-  connect(authorizationView_, &Authorization::registationSignal,
-          messengerView_, &Messenger::registrationSlot);
+  connect(authorizationView_, &Authorization::registationSignal, messengerView_,
+          &Messenger::registrationSlot);
 
   connect(messengerView_, &Messenger::successLoginSignal, this,
           &Client::successLoginSlot);

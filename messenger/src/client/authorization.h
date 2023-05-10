@@ -34,4 +34,4 @@ class Authorization : public QWidget {
   void registationSignal(QString nickname, QString password);
 };
 
-#endif // MESSENGER_AUTHORIZATION_H
+#endif  // MESSENGER_AUTHORIZATION_H

@@ -2,65 +2,14 @@
 
 #include "../types.h"
 
-Messenger::Messenger(QWidget* parent)
-    : QWidget(parent), byteBlockSize_{0} {
-  clientData_ = new ClientData();
-
-  nicknameLabel_ = new QLabel();
-  nicknameLabel_->setAlignment(Qt::AlignCenter);
-
-  chatBox_ = new QTextEdit();
-  chatBox_->setReadOnly(true);
-
-  messageBox_ = new QTextEdit();
-  messageBox_->setFixedHeight(30);
-
-  findUserLayout_ = new QHBoxLayout();
-  findUserButton_ = new QPushButton("Find");
-
-  sendButton_ = new QPushButton("Send");
-  connect(sendButton_, &QPushButton::clicked, this,
-          &Messenger::onSendButtonClicked);
-  connect(findUserButton_, &QPushButton::clicked, this,
-          &Messenger::onFindUserButtonClicked);
-
-  QLabel* targetUserLabel = new QLabel("Enter target username:");
-  targetUser_ = new QTextEdit();
-  targetUser_->setFixedHeight(30);
-
-  chatLayout_ = new QVBoxLayout();
-  findUserLayout_->addWidget(targetUser_);
-  findUserLayout_->addWidget(findUserButton_);
-  chatLayout_->addWidget(targetUserLabel);
-  chatLayout_->addLayout(findUserLayout_);
-  chatLayout_->addWidget(targetUser_);
-  chatLayout_->addWidget(chatBox_);
-
-  messageLayout_ = new QHBoxLayout();
-  messageLayout_->addWidget(messageBox_);
-  messageLayout_->addWidget(sendButton_);
-
-  mainLayout_ = new QVBoxLayout();
-  mainLayout_->addWidget(nicknameLabel_);
-  mainLayout_->addLayout(chatLayout_);
-  mainLayout_->addLayout(messageLayout_);
-
-  setLayout(mainLayout_);
-
-  serverSocket_ = new QTcpSocket(this);
-  serverSocket_->setSocketOption(QAbstractSocket::LowDelayOption, 1);
-
-  connect(serverSocket_, &QTcpSocket::readyRead, this,
-          &Messenger::slotReadyRead);
-  connect(serverSocket_, &QTcpSocket::disconnected, serverSocket_,
-          &QTcpSocket::deleteLater);
-
-  serverSocket_->connectToHost("127.0.0.1", 2323);
+Messenger::Messenger(QWidget* parent) : QWidget(parent), byteBlockSize_{0} {
+  createUI();
+  setupClientAndServer();
 }
 
 Messenger::~Messenger() { delete clientData_; }
 
-// Приём данных
+// Get data from server
 void Messenger::slotReadyRead() {
   QDataStream in(serverSocket_);
   in.setVersion(QDataStream::Qt_6_4);
@@ -156,8 +105,7 @@ void Messenger::onFindUserButtonClicked() {
   serverSocket_->write(byteData_);
 }
 
-void Messenger::loginSlot(const QString& nickname,
-                              const QString& password) {
+void Messenger::loginSlot(const QString& nickname, const QString& password) {
   byteData_.clear();
 
   clientData_->username = nickname;
@@ -171,7 +119,7 @@ void Messenger::loginSlot(const QString& nickname,
 }
 
 void Messenger::registrationSlot(const QString& nickname,
-                                     const QString& password) {
+                                 const QString& password) {
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
@@ -184,4 +132,62 @@ void Messenger::registrationSlot(const QString& nickname,
 
 void Messenger::setUsername() {
   nicknameLabel_->setText(clientData_->username);
+}
+
+void Messenger::setupClientAndServer() {
+  serverSocket_ = new QTcpSocket(this);
+  serverSocket_->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+
+  clientData_ = new ClientData();
+
+  connect(serverSocket_, &QTcpSocket::readyRead, this,
+          &Messenger::slotReadyRead);
+  connect(serverSocket_, &QTcpSocket::disconnected, serverSocket_,
+          &QTcpSocket::deleteLater);
+
+  serverSocket_->connectToHost("127.0.0.1", 2323);
+}
+
+void Messenger::createUI() {
+  nicknameLabel_ = new QLabel();
+  nicknameLabel_->setAlignment(Qt::AlignCenter);
+
+  chatBox_ = new QTextEdit();
+  chatBox_->setReadOnly(true);
+
+  messageBox_ = new QTextEdit();
+  messageBox_->setFixedHeight(30);
+
+  findUserLayout_ = new QHBoxLayout();
+  findUserButton_ = new QPushButton("Find");
+
+  sendButton_ = new QPushButton("Send");
+
+  QLabel* targetUserLabel = new QLabel("Enter target username:");
+  targetUser_ = new QTextEdit();
+  targetUser_->setFixedHeight(30);
+
+  chatLayout_ = new QVBoxLayout();
+  findUserLayout_->addWidget(targetUser_);
+  findUserLayout_->addWidget(findUserButton_);
+  chatLayout_->addWidget(targetUserLabel);
+  chatLayout_->addLayout(findUserLayout_);
+  chatLayout_->addWidget(targetUser_);
+  chatLayout_->addWidget(chatBox_);
+
+  messageLayout_ = new QHBoxLayout();
+  messageLayout_->addWidget(messageBox_);
+  messageLayout_->addWidget(sendButton_);
+
+  mainLayout_ = new QVBoxLayout();
+  mainLayout_->addWidget(nicknameLabel_);
+  mainLayout_->addLayout(chatLayout_);
+  mainLayout_->addLayout(messageLayout_);
+
+  setLayout(mainLayout_);
+
+  connect(sendButton_, &QPushButton::clicked, this,
+          &Messenger::onSendButtonClicked);
+  connect(findUserButton_, &QPushButton::clicked, this,
+          &Messenger::onFindUserButtonClicked);
 }

@@ -15,14 +15,14 @@ class Client : public QMainWindow {
   Q_OBJECT
 
  public:
-   Client(QWidget* parent = nullptr);
+  Client(QWidget* parent = nullptr);
   ~Client() = default;
 
  private:
   QStackedWidget* stackedWidget_;
 
-  Messenger * messengerView_;
-  Authorization * authorizationView_;
+  Messenger* messengerView_;
+  Authorization* authorizationView_;
 
  private slots:
   void successLoginSlot();
