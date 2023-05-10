@@ -5,6 +5,7 @@
 #include <QSqlError>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QVector>
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 
@@ -16,10 +17,11 @@ class Server : public QTcpServer {
 
  private:
   void initPostgres();
-  QMap<qintptr, QTcpSocket *> sockets_;
+  QSet<QTcpSocket *> sockets_;
   QByteArray byteData_;
-  void SendToClient(const QString &str, int type,
-                    QTcpSocket *senderSocket = nullptr);
+  void SendToClient(
+      const QString &str, int type,
+      QVector<QTcpSocket *> senderSockets = QVector<QTcpSocket *>());
   quint16 byteBlockSize_;
   QSqlDatabase db_;
   uint tempSock_;

@@ -12,15 +12,17 @@ Server::Server() : byteBlockSize_{0} {
   initPostgres();
 }
 
+Server::~Server() { db_.close(); }
+
 // Обработчик новых подключений
 void Server::incomingConnection(qintptr socketDescriptor) {
   auto* socket = new QTcpSocket;
   socket->setSocketDescriptor(socketDescriptor);
   connect(socket, &QTcpSocket::readyRead, this, &Server::slotReadyRead);
-  connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
   connect(socket, &QTcpSocket::disconnected, this, &Server::clientDisconnected);
+  connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
 
-  sockets_.insert(socket->socketDescriptor(), socket);
+  sockets_.insert(socket);
   qDebug() << "client connected: " << socket->socketDescriptor();
 }
 
@@ -63,6 +65,23 @@ void Server::slotReadyRead() {
                   .arg(receiverName)
                   .arg(message);
           QSqlQuery query(queryStr);
+          str = message;
+
+          QVector<QTcpSocket*> sockets;
+          sockets.push_back(socket);
+
+          QTcpSocket* receiverSocket = new QTcpSocket;
+
+          QString receiverSocketStr =
+              QString("SELECT session_token FROM users WHERE username = '%1';")
+                  .arg(receiverName);
+          QSqlQuery receiverSocketQuery(receiverSocketStr);
+          int receiverSocketDesc = receiverSocketQuery.value(0).toInt();
+          receiverSocket->setSocketDescriptor(receiverSocketDesc);
+          sockets.push_back(receiverSocket);
+          str = senderName + ": " + str;
+          SendToClient(str, 0, sockets);
+          delete receiverSocket;
           break;
         }
         case 1: {
@@ -79,8 +98,27 @@ void Server::slotReadyRead() {
           if (query.next()) {
             int count = query.value(0).toInt();
             str = QString::number(count);
-            SendToClient(str, 1, socket);
+            QVector<QTcpSocket*> sockets;
+            sockets.push_back(socket);
+            SendToClient(str, 1, sockets);
           }
+
+          QString deletePreviousOwnerStr = QString(
+                                               "UPDATE users SET session_token "
+                                               "=-1 WHERE session_token=%1;")
+                                               .arg(socket->socketDescriptor());
+          QSqlQuery deletePreviousOwnerQuery;
+          deletePreviousOwnerQuery.exec(deletePreviousOwnerStr);
+
+          QString updateSocketStr =
+              QString(
+                  "UPDATE users SET session_token = %1 WHERE username='%2';")
+                  .arg(socket->socketDescriptor())
+                  .arg(login);
+
+          QSqlQuery updateSocketQuery;
+          updateSocketQuery.exec(updateSocketStr);
+
           break;
         }
         case 2: {
@@ -107,7 +145,9 @@ void Server::slotReadyRead() {
             str = "BAD";
           }
 
-          SendToClient(str, 2, socket);
+          QVector<QTcpSocket*> sockets;
+          sockets.push_back(socket);
+          SendToClient(str, 2, sockets);
           break;
         }
         case 3: {
@@ -128,7 +168,9 @@ void Server::slotReadyRead() {
             str += query.value(0).toString() + ": " +
                    query.value(1).toString() + '\n';
           }
-          SendToClient(str, 3, socket);
+          QVector<QTcpSocket*> sockets;
+          sockets.push_back(socket);
+          SendToClient(str, 3, sockets);
           break;
         }
         default:
@@ -144,7 +186,7 @@ void Server::slotReadyRead() {
 }
 
 void Server::SendToClient(const QString& str, const int type,
-                          QTcpSocket* senderSocket) {
+                          QVector<QTcpSocket*> senderSockets) {
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
@@ -155,27 +197,28 @@ void Server::SendToClient(const QString& str, const int type,
   out << quint16(byteData_.size() - sizeof(quint16));
 
   if (!type) {
-    auto sock = sockets_.find(tempSock_);
-    sock.value()->write(byteData_);
-    qDebug() << sock.value()->socketDescriptor();
-  } else if (type == 1) {
-    senderSocket->write(byteData_);
-  } else if (type == 2) {
-    senderSocket->write(byteData_);
-  } else if (type == 3) {
-    senderSocket->write(byteData_);
+    for (auto socket : sockets_) {
+      if (socket->socketDescriptor() != -1) {
+        try {
+          socket->write(byteData_);
+        } catch (...) {
+          qDebug() << "Socket not available";
+        }
+      }
+    }
+  } else {
+    senderSockets[0]->write(byteData_);
   }
 }
 
 void Server::clientDisconnected() {
-  auto* socket = qobject_cast<QTcpSocket*>(sender());
+  QTcpSocket* socket = qobject_cast<QTcpSocket*>(sender());
   if (socket) {
     if (socket->error() != QAbstractSocket::RemoteHostClosedError) {
       qDebug() << "client disconnected with error: " << socket->errorString();
-    } else {
-      qDebug() << "client disconnected: " << socket->socketDescriptor();
     }
-    sockets_.remove(socket->socketDescriptor());
+    sockets_.remove(socket);
+    socket->deleteLater();
   }
 }
 
@@ -198,5 +241,3 @@ void Server::initPostgres() {
 
   qDebug() << "Connected to PostgreSQL database.";
 }
-
-Server::~Server() { db_.close(); }
