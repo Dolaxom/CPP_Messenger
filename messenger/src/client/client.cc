@@ -2,7 +2,7 @@
  * THIS IS THE MAIN UI FILE FOR THE CLIENT APP
  */
 
-#include "client_view.h"
+#include "client.h"
 
 ClientView::ClientView(QWidget* parent) : QMainWindow(parent) {
   stackedWidget_ = new QStackedWidget(this);

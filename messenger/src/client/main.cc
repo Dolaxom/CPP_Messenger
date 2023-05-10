@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include "client_view.h"
+#include "client.h"
 
 int main(int argc, char *argv[]) {
   QApplication application(argc, argv);

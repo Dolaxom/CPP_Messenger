@@ -22,8 +22,8 @@ set(PROJECT_SOURCES
         messenger.h
         authorization.cc
         authorization.h
-        client_view.cc
-        client_view.h
+        client.cc
+        client.h
         client_data.h
         )
 
