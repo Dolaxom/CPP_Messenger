@@ -8,8 +8,8 @@
 #include <QMainWindow>
 #include <QStackedWidget>
 
-#include "authorization_view.h"
-#include "messenger_view.h"
+#include "authorization.h"
+#include "messenger.h"
 
 class ClientView : public QMainWindow {
   Q_OBJECT
@@ -21,8 +21,8 @@ class ClientView : public QMainWindow {
  private:
   QStackedWidget* stackedWidget_;
 
-  MessengerView* messengerView_;
-  AuthorizationView* authorizationView_;
+  Messenger * messengerView_;
+  Authorization * authorizationView_;
 
  private slots:
   void successLoginSlot();

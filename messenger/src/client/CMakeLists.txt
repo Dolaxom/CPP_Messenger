@@ -18,10 +18,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network Sql)
 
 set(PROJECT_SOURCES
         main.cc
-        messenger_view.cc
-        messenger_view.h
-        authorization_view.cc
-        authorization_view.h
+        messenger.cc
+        messenger.h
+        authorization.cc
+        authorization.h
         client_view.cc
         client_view.h
         client_data.h

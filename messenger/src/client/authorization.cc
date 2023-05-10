@@ -1,6 +1,6 @@
-#include "authorization_view.h"
+#include "authorization.h"
 
-AuthorizationView::AuthorizationView(QWidget* parent) : QWidget(parent) {
+Authorization::Authorization(QWidget* parent) : QWidget(parent) {
   layout_ = new QFormLayout();
   warningLabel_ = new QLabel("");
   usernameEdit_ = new QLineEdit();
@@ -32,21 +32,21 @@ AuthorizationView::AuthorizationView(QWidget* parent) : QWidget(parent) {
   setLayout(mainLayout);
 
   connect(loginButton_, &QPushButton::clicked, this,
-          &AuthorizationView::tryAuthorization);
+          &Authorization::tryAuthorization);
 
   connect(registerButton_, &QPushButton::clicked, this,
-          &AuthorizationView::tryRegistration);
+          &Authorization::tryRegistration);
 }
 
-void AuthorizationView::tryAuthorization() {
+void Authorization::tryAuthorization() {
   emit loginSignal(usernameEdit_->text(), passwordEdit_->text());
 }
 
-void AuthorizationView::tryRegistration() {
+void Authorization::tryRegistration() {
   emit registationSignal(usernameEdit_->text(), passwordEdit_->text());
 }
 
-void AuthorizationView::setWarning(const QString&& str) {
+void Authorization::setWarning(const QString&& str) {
   usernameEdit_->clear();
   passwordEdit_->clear();
   warningLabel_->setText(str);

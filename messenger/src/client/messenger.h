@@ -11,12 +11,12 @@
 
 #include "client_data.h"
 
-class MessengerView : public QWidget {
+class Messenger : public QWidget {
   Q_OBJECT
 
  public:
-  explicit MessengerView(QWidget *parent = nullptr);
-  ~MessengerView();
+  explicit Messenger(QWidget *parent = nullptr);
+  ~Messenger();
 
   void setUsername();
 

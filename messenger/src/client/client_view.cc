@@ -7,30 +7,30 @@
 ClientView::ClientView(QWidget* parent) : QMainWindow(parent) {
   stackedWidget_ = new QStackedWidget(this);
 
-  authorizationView_ = new AuthorizationView(this);
+  authorizationView_ = new Authorization(this);
   stackedWidget_->addWidget(authorizationView_);
 
-  messengerView_ = new MessengerView(this);
+  messengerView_ = new Messenger(this);
   stackedWidget_->addWidget(messengerView_);
 
   setCentralWidget(stackedWidget_);
 
-  connect(authorizationView_, &AuthorizationView::loginSignal, messengerView_,
-          &MessengerView::loginSlot);
+  connect(authorizationView_, &Authorization::loginSignal, messengerView_,
+          &Messenger::loginSlot);
 
-  connect(authorizationView_, &AuthorizationView::registationSignal,
-          messengerView_, &MessengerView::registrationSlot);
+  connect(authorizationView_, &Authorization::registationSignal,
+          messengerView_, &Messenger::registrationSlot);
 
-  connect(messengerView_, &MessengerView::successLoginSignal, this,
+  connect(messengerView_, &Messenger::successLoginSignal, this,
           &ClientView::successLoginSlot);
 
-  connect(messengerView_, &MessengerView::successRegistrationSignal, this,
+  connect(messengerView_, &Messenger::successRegistrationSignal, this,
           &ClientView::successRegistrationSlot);
 
-  connect(messengerView_, &MessengerView::oppositeLoginSignal, this,
+  connect(messengerView_, &Messenger::oppositeLoginSignal, this,
           &ClientView::oppositeLoginSlot);
 
-  connect(messengerView_, &MessengerView::oppositeRegistrationSignal, this,
+  connect(messengerView_, &Messenger::oppositeRegistrationSignal, this,
           &ClientView::oppositeRegistrationSlot);
 }
 

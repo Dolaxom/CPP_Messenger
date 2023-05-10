@@ -1,8 +1,8 @@
-#include "messenger_view.h"
+#include "messenger.h"
 
 #include "../types.h"
 
-MessengerView::MessengerView(QWidget* parent)
+Messenger::Messenger(QWidget* parent)
     : QWidget(parent), byteBlockSize_{0} {
   clientData_ = new Client();
 
@@ -20,9 +20,9 @@ MessengerView::MessengerView(QWidget* parent)
 
   sendButton_ = new QPushButton("Send");
   connect(sendButton_, &QPushButton::clicked, this,
-          &MessengerView::onSendButtonClicked);
+          &Messenger::onSendButtonClicked);
   connect(findUserButton_, &QPushButton::clicked, this,
-          &MessengerView::onFindUserButtonClicked);
+          &Messenger::onFindUserButtonClicked);
 
   QLabel* targetUserLabel = new QLabel("Enter target username:");
   targetUser_ = new QTextEdit();
@@ -51,17 +51,17 @@ MessengerView::MessengerView(QWidget* parent)
   serverSocket_->setSocketOption(QAbstractSocket::LowDelayOption, 1);
 
   connect(serverSocket_, &QTcpSocket::readyRead, this,
-          &MessengerView::slotReadyRead);
+          &Messenger::slotReadyRead);
   connect(serverSocket_, &QTcpSocket::disconnected, serverSocket_,
           &QTcpSocket::deleteLater);
 
   serverSocket_->connectToHost("127.0.0.1", 2323);
 }
 
-MessengerView::~MessengerView() { delete clientData_; }
+Messenger::~Messenger() { delete clientData_; }
 
 // Приём данных
-void MessengerView::slotReadyRead() {
+void Messenger::slotReadyRead() {
   QDataStream in(serverSocket_);
   in.setVersion(QDataStream::Qt_6_4);
   if (in.status() == QDataStream::Ok) {
@@ -73,7 +73,7 @@ void MessengerView::slotReadyRead() {
         in >> byteBlockSize_;
       }
       if (serverSocket_->bytesAvailable() < byteBlockSize_) {
-        qDebug() << "MessengerView::slotReadyRead() dead memory";
+        qDebug() << "Messenger::slotReadyRead() dead memory";
         break;
       }
 
@@ -126,7 +126,7 @@ void MessengerView::slotReadyRead() {
   qDebug() << serverSocket_->socketDescriptor() << "client socket send";
 }
 
-void MessengerView::sendToServer(const QString& str) {
+void Messenger::sendToServer(const QString& str) {
   byteData_.clear();
 
   QDataStream out(&byteData_, QIODevice::WriteOnly);
@@ -138,12 +138,12 @@ void MessengerView::sendToServer(const QString& str) {
   serverSocket_->write(byteData_);
 }
 
-void MessengerView::onSendButtonClicked() {
+void Messenger::onSendButtonClicked() {
   sendToServer(messageBox_->toPlainText());
   messageBox_->clear();
 }
 
-void MessengerView::onFindUserButtonClicked() {
+void Messenger::onFindUserButtonClicked() {
   chatBox_->clear();
   byteData_.clear();
 
@@ -156,7 +156,7 @@ void MessengerView::onFindUserButtonClicked() {
   serverSocket_->write(byteData_);
 }
 
-void MessengerView::loginSlot(const QString& nickname,
+void Messenger::loginSlot(const QString& nickname,
                               const QString& password) {
   byteData_.clear();
 
@@ -170,7 +170,7 @@ void MessengerView::loginSlot(const QString& nickname,
   serverSocket_->write(byteData_);
 }
 
-void MessengerView::registrationSlot(const QString& nickname,
+void Messenger::registrationSlot(const QString& nickname,
                                      const QString& password) {
   byteData_.clear();
 
@@ -182,6 +182,6 @@ void MessengerView::registrationSlot(const QString& nickname,
   serverSocket_->write(byteData_);
 }
 
-void MessengerView::setUsername() {
+void Messenger::setUsername() {
   nicknameLabel_->setText(clientData_->username);
 }

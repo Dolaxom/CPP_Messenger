@@ -1,5 +1,5 @@
-#ifndef MESSENGER_AUTHORIZATION_VIEW_H
-#define MESSENGER_AUTHORIZATION_VIEW_H
+#ifndef MESSENGER_AUTHORIZATION_H
+#define MESSENGER_AUTHORIZATION_H
 
 #include <QFormLayout>
 #include <QLabel>
@@ -8,13 +8,13 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-class AuthorizationView : public QWidget {
+class Authorization : public QWidget {
   Q_OBJECT
 
  public:
-  explicit AuthorizationView(QWidget* parent = nullptr);
+  explicit Authorization(QWidget* parent = nullptr);
 
-  ~AuthorizationView() = default;
+  ~Authorization() = default;
 
   void setWarning(const QString&& str);
 
@@ -34,4 +34,4 @@ class AuthorizationView : public QWidget {
   void registationSignal(QString nickname, QString password);
 };
 
-#endif  // MESSENGER_AUTHORIZATION_VIEW_H
+#endif // MESSENGER_AUTHORIZATION_H
